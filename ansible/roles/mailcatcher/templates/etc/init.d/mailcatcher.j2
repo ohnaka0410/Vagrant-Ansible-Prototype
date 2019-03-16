@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+#
+# mailcatcher  Startup script for the mailcatcher SMTP Server
+#
+# chkconfig: - 85 15
+# description: The mailcatcher MTP Server is an efficient and extensible  \
+#              server implementing the current mailcatcher standards.
+
+. /etc/rc.d/init.d/functions
+
+mailcatcher=${MAILCATCHER-{{ ruby_rbenv_root }}/shims/mailcatcher}
+prog=mailcatcher
+lockfile=${LOCKFILE-/var/lock/subsys/mailcatcher}
+RETVAL=0
+STOP_TIMEOUT=${STOP_TIMEOUT-10}
+
+start() {
+        daemon $mailcatcher --verbose --http-port {{ mailcatcher_http_port }} --smtp-port {{ mailcatcher_smtp_port }} --ip 0.0.0.0
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && touch ${lockfile}
+        return $RETVAL
+}
+
+stop() {
+        echo -n $"Stopping $prog: "
+        killproc -d ${STOP_TIMEOUT} $mailcatcher
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status $mailcatcher
+        RETVAL=$?
+        ;;
+  restart)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $prog {start|stop|restart|status|}"
+        RETVAL=2
+esac
+
+exit $RETVAL

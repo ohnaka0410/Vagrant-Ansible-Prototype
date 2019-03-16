@@ -1,0 +1,14 @@
+---
+#conf
+mysql_conf_templates:
+  - ../templates/etc/*.cnf.j2
+  - ../templates/etc/mysql.d/*.cnf.j2
+
+#version
+mysql_version: 5.6
+
+mysql_default_version: 5.1
+
+mysql_db_name: sample
+mysql_db_user: user
+mysql_db_password: test

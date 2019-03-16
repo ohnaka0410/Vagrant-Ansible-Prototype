@@ -1,0 +1,4 @@
+---
+#conf
+ntp_conf_templates:
+  - ../templates/etc/*.conf.j2

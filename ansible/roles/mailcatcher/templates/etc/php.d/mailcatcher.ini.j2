@@ -1,0 +1,29 @@
+[mail function]
+; For Win32 only.
+; http://www.php.net/manual/en/mail.configuration.php#ini.smtp
+;SMTP = localhost
+SMTP = 127.0.0.1
+; http://www.php.net/manual/en/mail.configuration.php#ini.smtp-port
+;smtp_port = 25
+smtp_port = {{ mailcatcher_smtp_port }}
+
+; For Win32 only.
+; http://www.php.net/manual/en/mail.configuration.php#ini.sendmail-from
+;sendmail_from = me@example.com
+sendmail_from = no-reply@example.com
+
+; For Unix only.  You may supply arguments as well (default: "sendmail -t -i").
+; http://www.php.net/manual/en/mail.configuration.php#ini.sendmail-path
+;sendmail_path = /usr/sbin/sendmail -t -i
+sendmail_path = /usr/bin/env catchmail --smtp-ip 0.0.0.0 --smtp-port {{ mailcatcher_smtp_port }}
+
+; Force the addition of the specified parameters to be passed as extra parameters
+; to the sendmail binary. These parameters will always replace the value of
+; the 5th parameter to mail(), even in safe mode.
+;mail.force_extra_parameters =
+
+; Add X-PHP-Originaiting-Script: that will include uid of the script followed by the filename
+;mail.add_x_header = On
+
+; Log all mail() calls including the full path of the script, line #, to address and headers
+;mail.log =

@@ -1,0 +1,38 @@
+---
+- name: Create Group
+  group:
+    gid: "{{ httpd_gid }}"
+    name: apache
+
+- name: Create User
+  user:
+    uid: "{{ httpd_uid }}"
+    name: apache
+    groups: apache
+    comment: Apache
+    shell: /sbin/nologin
+    home: /var/www
+    createhome: no
+
+- name: Install
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - httpd
+    - mod_ssl
+
+- name: Send conf templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    backup: yes
+  with_fileglob: "{{ httpd_conf_templates }}"
+  notify:
+    - restart httpd
+
+- name: Service is running and enabled
+  service:
+    name: httpd
+    state: started
+    enabled: yes

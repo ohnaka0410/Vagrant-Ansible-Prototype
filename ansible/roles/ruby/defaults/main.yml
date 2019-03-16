@@ -1,0 +1,4 @@
+---
+#conf
+ruby_version: 2.4.1
+ruby_rbenv_root: /usr/local/rbenv

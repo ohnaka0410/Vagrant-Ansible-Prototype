@@ -1,0 +1,48 @@
+---
+- name: Install Middleware
+  yum:
+    name: "{{ item }}"
+    enablerepo: epel
+  with_items:
+    - git
+    - gcc
+    - gcc-c++
+    - make
+    - openssl-devel
+    - readline-devel
+    - libffi-devel
+    - sqlite-devel
+
+- name: Check Ruby Installed
+  shell: bash -lc "which ruby"
+  register: ruby_install
+  failed_when: ruby_install.rc not in [0, 1]
+
+- name: Clone rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: "{{ ruby_rbenv_root }}"
+  when: ruby_install.rc == 1
+
+- name: Clone rbenv build plugin
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: "{{ ruby_rbenv_root }}/plugins/ruby-build"
+  when: ruby_install.rc == 1
+
+- name: set env
+  blockinfile:
+    dest: /etc/profile
+    content: |
+      export RBENV_ROOT={{ ruby_rbenv_root }}
+      export PATH="$RBENV_ROOT/bin:$PATH"
+      eval "$(rbenv init -)"
+  when: ruby_install.rc == 1
+
+- name: rbenv install
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  when: ruby_install.rc == 1
+
+- name: rbenv global
+  shell: bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
+  when: ruby_install.rc == 1

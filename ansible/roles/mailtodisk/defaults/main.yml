@@ -1,0 +1,9 @@
+---
+#conf
+mailtodisk_conf_templates:
+  - ../templates/etc/php.d/*.ini.j2
+#dir
+mailtodisk_dest_dir: /usr/local/bin/mailtodisk
+#bin
+mailtodisk_bin_templates:
+  - ../templates/usr/local/bin/mailtodisk.j2

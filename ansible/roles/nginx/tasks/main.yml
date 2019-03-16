@@ -1,0 +1,47 @@
+---
+- name: Create Group
+  group:
+    gid: "{{ nginx_gid }}"
+    name: nginx
+
+- name: Create User
+  user:
+    uid: "{{ nginx_uid }}"
+    name: nginx
+    groups: nginx
+    comment: Nginx
+    shell: /sbin/nologin
+    home: /var/cache/nginx
+    createhome: no
+
+- name: Add Yum Repo
+  yum_repository:
+    file: nginx
+    name: nginx
+    baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
+    description: Nginx Repository
+    enabled: no
+    gpgcheck: no
+    backup: yes
+
+- name: Install
+  yum:
+    name: "{{ item }}"
+    enablerepo: nginx
+  with_items:
+    - nginx
+
+- name: Send conf templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    backup: yes
+  with_fileglob: "{{ nginx_conf_templates }}"
+  notify:
+    - restart nginx
+
+- name: Service is running and enabled
+  service:
+    name: nginx
+    state: started
+    enabled: yes

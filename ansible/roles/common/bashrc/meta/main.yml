@@ -1,0 +1,4 @@
+---
+dependencies:
+  - role: common/selinux
+  - role: common/timezone

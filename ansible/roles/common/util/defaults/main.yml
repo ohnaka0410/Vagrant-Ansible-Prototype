@@ -1,0 +1,8 @@
+---
+util_yum_package:
+  - wget
+  - vim
+  - rsync
+  - bind-utils
+  - nfs-utils
+  - git

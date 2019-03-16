@@ -1,0 +1,10 @@
+---
+- name: DB Servers
+  hosts:
+    - db
+  become: yes
+  roles:
+    - mysql
+    - phpmyadmin
+    - postgresql
+    - phppgadmin

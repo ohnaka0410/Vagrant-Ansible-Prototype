@@ -1,0 +1,30 @@
+---
+- name: Install
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - ntp
+
+- name: Send conf templates
+  template:
+    src:  "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    backup: yes
+  with_fileglob: "{{ ntp_conf_templates }}"
+  register: ntp_conf
+
+- name: restart ntpd
+  service:
+    name: ntpd
+    state: restarted
+  when: ntp_conf.changed
+
+- name: fix datetime
+  shell: ntpdate -u ntp.nict.jp
+  when: ntp_conf.changed
+
+- name: Service is running and enabled
+  service:
+    name: ntpd
+    state: started
+    enabled: yes

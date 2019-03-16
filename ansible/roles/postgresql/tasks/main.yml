@@ -1,0 +1,56 @@
+---
+- name: Install Repo
+  yum:
+    name: "https://download.postgresql.org/pub/repos/yum/{{ pgsql_version }}/redhat/rhel-6-x86_64/pgdg-centos93-{{ pgsql_version }}-3.noarch.rpm"
+
+- name: Edit Repo
+  replace:
+    path: "{{ item }}"
+    regexp: ^enabled.*=.*1$
+    replace: enabled=0
+    backup: yes
+  with_fileglob:
+    - /etc/yum.repos.d/pgdg-*.repo
+
+- name: Install
+  yum:
+    name: "{{ item }}"
+    enablerepo: "pgdg{{ pgsql_version | regex_replace('\\.','') }}"
+  with_items:
+    - "postgresql{{ pgsql_version | regex_replace('\\.','') }}"
+    - "postgresql{{ pgsql_version | regex_replace('\\.','') }}-contrib"
+    - "postgresql{{ pgsql_version | regex_replace('\\.','') }}-devel"
+    - "postgresql{{ pgsql_version | regex_replace('\\.','') }}-libs"
+    - "postgresql{{ pgsql_version | regex_replace('\\.','') }}-server"
+    - python-psycopg2
+
+- name: Init Database
+  shell: "/usr/pgsql-{{ pgsql_version }}/bin/initdb -D {{ pgsql_data_dir }} --no-locale"
+  args:
+    creates: "{{ pgsql_data_dir }}/postgresql.conf"
+  become: yes
+  become_user: postgres
+
+- name: Service is running and enabled
+  service:
+    name: "postgresql-{{ pgsql_version }}"
+    state: started
+    enabled: yes
+
+- name : create database
+  postgresql_db:
+    name: "{{ pgsql_db_name }}"
+    encoding: UTF-8
+    port: 5432
+    template: template0
+  become: yes
+  become_user: postgres
+
+- name: create user
+  postgresql_user:
+    db: "{{ pgsql_db_name }}"
+    name: "{{ pgsql_db_user }}"
+    password: "{{ pgsql_db_password }}"
+    state: present
+  become: yes
+  become_user: postgres

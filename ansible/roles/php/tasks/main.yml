@@ -1,0 +1,50 @@
+---
+- name: Install Repo
+  yum:
+    name: http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+  when: php_version != php_default_version
+
+- name: Define php_version.
+  set_fact:
+    php_version: "{{ php_default_version }}"
+  when: php_version is not defined
+
+- name: Edit Repo
+  replace:
+    path: "{{ item }}"
+    regexp: ^enabled.*=.*1$
+    replace: enabled=0
+    backup: yes
+  with_fileglob:
+    - /etc/yum.repos.d/remi*.repo
+  when: php_version != php_default_version
+
+- name: Install
+  yum:
+    name: "{{ item }}"
+  with_items: "{{ php_yum_items }}"
+  when: php_version == php_default_version
+
+- name: Install
+  yum:
+    name: "{{ item }}"
+    enablerepo: "remi,remi-php{{ php_version | regex_replace('\\.','') }},epel"
+  with_items: "{{ php_yum_items }}"
+  when: php_version != php_default_version
+
+- name: Create Log File
+  file:
+    path: "{{ php_log_file_path }}"
+    state: touch
+    owner: apache
+    group: apache
+    mode: 0777
+
+- name: Send conf templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    backup: yes
+  with_fileglob: "{{ php_conf_templates }}"
+  notify:
+    - restart httpd

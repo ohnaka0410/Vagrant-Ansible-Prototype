@@ -1,0 +1,16 @@
+---
+- name: Install
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - epel-release
+
+- name: Edit Repo
+  replace:
+    path: "{{ item }}"
+    regexp: ^enabled.*=.*1$
+    replace: enabled=0
+    backup: yes
+  with_fileglob:
+    - /etc/yum.repos.d/epel*.repo

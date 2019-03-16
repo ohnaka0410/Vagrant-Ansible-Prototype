@@ -1,0 +1,26 @@
+---
+#conf
+php_conf_templates:
+  - ../templates/etc/*.ini.j2
+  - ../templates/etc/php.d/*.ini.j2
+#dir
+php_log_file_path: /var/log/php_errors.log
+
+#yum
+php_yum_items:
+  - php
+  - php-mbstring
+  - php-mcrypt
+  # - php-mysql
+  - php-mysqlnd
+  - php-pgsql
+  - php-xml
+  - php-gd
+  - php-process
+  - php-bcmath
+  - php-tidy
+
+#version
+php_version: 5.4
+
+php_default_version: 5.3

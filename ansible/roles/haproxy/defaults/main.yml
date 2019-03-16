@@ -1,0 +1,7 @@
+---
+haproxy_gid: 8888
+haproxy_uid: 8888
+
+#conf
+haproxy_conf_templates:
+  - ../templates/etc/haproxy/*.cfg.j2

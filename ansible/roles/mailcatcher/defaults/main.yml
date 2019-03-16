@@ -1,0 +1,7 @@
+---
+#conf
+mailcatcher_conf_templates:
+  - ../templates/etc/init.d/*.j2
+  - ../templates/etc/php.d/*.j2
+mailcatcher_http_port: 1080
+mailcatcher_smtp_port: 1025

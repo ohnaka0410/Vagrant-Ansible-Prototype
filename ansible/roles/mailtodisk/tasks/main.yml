@@ -1,0 +1,25 @@
+---
+- name: Create Nas dir
+  file:
+    path: "{{ mailtodisk_dest_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+
+- name: Send bin templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    backup: yes
+  with_fileglob: "{{ mailtodisk_conf_templates }}"
+  notify:
+    - restart httpd
+
+- name: Send bin templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    mode: 0755
+    backup: yes
+  with_fileglob: "{{ mailtodisk_bin_templates }}"

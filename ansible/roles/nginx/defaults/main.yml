@@ -1,0 +1,8 @@
+---
+nginx_gid: 8080
+nginx_uid: 8080
+
+#conf
+nginx_conf_templates:
+  - ../templates/etc/nginx/*.conf.j2
+  - ../templates/etc/nginx/conf.d/*.conf.j2

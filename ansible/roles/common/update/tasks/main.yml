@@ -1,0 +1,14 @@
+---
+#- name: Edit conf
+#  ini_file:
+#    path: /etc/yum.conf
+#    section: main
+#    option: exclude
+#    value: kernel* centos*
+#    backup: yes
+
+- name: Yum Update
+  yum:
+    name: "*"
+    state: latest
+    exclude: kernel* centos*

@@ -1,0 +1,9 @@
+---
+httpd_gid: 80
+httpd_uid: 80
+
+#conf
+httpd_conf_templates:
+  - ../templates/etc/httpd/conf/*.conf.j2
+  - ../templates/etc/httpd/conf.d/*.conf.j2
+  - ../templates/etc/init/*.conf.j2

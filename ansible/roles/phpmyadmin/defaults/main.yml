@@ -1,0 +1,4 @@
+---
+#conf
+phpmyadmin_conf_templates:
+  - ../templates/etc/httpd/conf.d/*.conf.j2

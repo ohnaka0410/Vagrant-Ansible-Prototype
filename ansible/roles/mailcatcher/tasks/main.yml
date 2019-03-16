@@ -1,0 +1,21 @@
+---
+- name: Install
+  gem:
+    name: mailcatcher
+    executable: "{{ ruby_rbenv_root }}/shims/gem"
+    user_install: no
+
+- name: Send conf templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    mode: 0755
+  with_fileglob: "{{ mailcatcher_conf_templates }}"
+  notify:
+    - restart mailcatcher
+
+- name: Service is running and enabled
+  service:
+    name: mailcatcher
+    state: started
+    enabled: yes

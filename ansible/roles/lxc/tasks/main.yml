@@ -1,0 +1,28 @@
+---
+- name: Install
+  yum:
+    name: "{{ item }}"
+    enablerepo: epel
+  with_items:
+    - lxc
+    - lxc-templates
+    - libvirt
+
+- name: Service is running and enabled
+  service:
+    name: libvirtd
+    state: started
+    enabled: yes
+
+- name: Create Cgroup Dir
+  file:
+    path: /mnt/cgroup
+    state: directory
+
+- name: Mount Cgroup
+  mount:
+    path: /mnt/cgroup
+    src: cgroup
+    fstype: cgroup
+    opts: defaults
+    state: mounted

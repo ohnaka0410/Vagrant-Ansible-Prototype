@@ -1,0 +1,10 @@
+---
+
+#version
+pgsql_version: 9.3
+
+#conf
+pgsql_data_dir: "/var/lib/pgsql/9.3/data"
+pgsql_db_name: sample
+pgsql_db_user: user
+pgsql_db_password: test

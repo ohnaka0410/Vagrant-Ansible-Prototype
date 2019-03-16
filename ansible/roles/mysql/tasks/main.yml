@@ -1,0 +1,96 @@
+---
+- name: Create Group
+  group:
+    gid: 3306
+    name: mysql
+
+- name: Create User
+  user:
+    uid: 3306
+    name: mysql
+    groups: mysql
+    comment: MySQL server
+    shell: /sbin/nologin
+    home: /var/lib/mysql
+    createhome: no
+
+- name: Define mysql_default_version.
+  set_fact:
+    mysql_version: "{{ mysql_default_version }}"
+  when: mysql_version is not defined
+
+- name: Install Repo
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - https://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
+  when:
+    - mysql_version != mysql_default_version
+    - mysql_version != 5.7
+
+- name: Install Repo
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - https://dev.mysql.com/get/mysql57-community-release-el6-11.noarch.rpm
+  when: mysql_version == 5.7
+
+- name: Edit Repo
+  replace:
+    path: "{{ item }}"
+    regexp: ^enabled.*=.*1$
+    replace: enabled=0
+    backup: yes
+  with_fileglob:
+    - /etc/yum.repos.d/mysql-community*.repo
+  when: mysql_version != mysql_default_version
+
+- name: Install
+  yum:
+    name: "{{ item }}*"
+  with_items:
+    - mysql
+    - mysql-libs
+    - mysql-server
+    - MySQL-python
+  when: mysql_version == mysql_default_version
+
+- name: Install
+  yum:
+    name: "{{ item }}"
+    enablerepo: "mysql{{ mysql_version | regex_replace('\\.','') }}-community"
+  with_items:
+    - "mysql-community-common-{{ mysql_version }}*"
+    - "mysql-community-libs-{{ mysql_version }}*"
+    - "mysql-community-client-{{ mysql_version }}*"
+    - "mysql-community-server-{{ mysql_version }}*"
+    - MySQL-python
+  when: mysql_version != mysql_default_version
+
+- name: Send conf templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ item | dirname | regex_replace('^.*\\.\\./templates','') }}/{{ item | basename | regex_replace('\\.j2$','') }}"
+    backup: yes
+  with_fileglob: "{{ mysql_conf_templates }}"
+  notify:
+    - restart mysqld
+
+- name: Service is running and enabled
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: create database
+  mysql_db:
+    name: "{{ mysql_db_name }}"
+    state: present
+    encoding: utf8
+
+- name: create user
+  mysql_user:
+    name: "{{ mysql_db_user }}"
+    password: "{{ mysql_db_password }}"
+    priv: '*.*:ALL,GRANT'
+    state: present

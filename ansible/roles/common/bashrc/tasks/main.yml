@@ -1,0 +1,6 @@
+---
+- name: Edit conf
+  lineinfile:
+    path: /etc/bashrc
+    line: "{{ item.line }}"
+  with_items: "{{ bashrc_conf_edit }}"
